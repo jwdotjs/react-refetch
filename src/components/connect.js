@@ -54,7 +54,7 @@ export default function connect(mapPropsToRequestsToProps, options = {}) {
         return this.comparison === that.comparison
       }
 
-      return [ 'url', 'method', 'headers', 'body' ].every((c) => {
+      return [ 'url', 'method', 'headers', 'body', 'refreshing' ].every((c) => {
         return shallowEqual(deepValue(this, c), deepValue(that, c))
       })
     }.bind(mapping)
@@ -178,6 +178,10 @@ export default function connect(mapPropsToRequestsToProps, options = {}) {
             if (Function.prototype.isPrototypeOf(mapping.then)) {
               this.refetchDatum(prop, coerceMapping(null, mapping.then(value, meta)))
               return
+            }
+
+            if (mapping.refreshing) {
+              mapping = Object.assign({}, mapping, { refreshing : false });
             }
 
             this.setAtomicState(prop, startedAt, mapping, PromiseState.resolve(value, meta), refreshTimeout, () => {
